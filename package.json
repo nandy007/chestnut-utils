@@ -1,0 +1,29 @@
+{
+  "name": "chestnut-utils",
+  "version": "0.1.0",
+  "description": "util for chestnut app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nandy007/chestnut-utils.git"
+  },
+  "keywords": [
+    "chestnut-app",
+    "util"
+  ],
+  "author": "nandy007",
+  "license": "MIT",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "mysql": "^2.13.0",
+    "pg": "^7.0.1",
+    "request": "^2.81.0"
+  },
+  "bugs": {
+    "url": "https://github.com/nandy007/chestnut-utils/issues"
+  },
+  "homepage": "https://github.com/nandy007/chestnut-utils#readme"
+}
