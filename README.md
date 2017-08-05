@@ -171,7 +171,7 @@ opts为请求参数，可参考https://github.com/request/request中的options�
 
 ```javascript
 exports.index = async (ctx) => {
-	const fetch = require('../utils/fetch');
+	const fetch = require('chestnut-utils').fetch;
 	let rs = await fetch('https://auth.exmobi.cn/login?output=json', {
       	ctx: ctx,
       	requestId: 'exmobi',

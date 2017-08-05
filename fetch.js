@@ -6,9 +6,6 @@ const crypto = require('crypto');
 
 const session = require('chestnut-session');
 
-let sessionCache = {};// 会话缓存，将会话id和requestId绑定
-let cache = {};// 请求缓存，将requestId与Request类实例化对象绑定
-
 class Client {
     // opts需要满足Request类的options要求，同时需要具有ctx和requestId属性
     // *ctx* 为koa的ctx，用户标识当前请求的会话，相同的会话发起的fetch请求的cookie是维持的
@@ -24,13 +21,14 @@ class Client {
             // 获取上下文
             getContext: function (opts) {
                 // 如果session中有sid则使用
-                const context = {
-                    sid : opts.ctx?opts.ctx.session.sid||'':''
-                };
+                const context = {};
                 // 如果session中有requestId则使用
                 let id = opts.requestId;
                 if (id) {
                     context.requestId = id;
+                    return context;
+                }else if(requestId===false){ // 设置为false则不使用requestId，即为无状态请求
+                    context.requestId = '';
                     return context;
                 }
                 // 否则根据host来创建requestId
@@ -42,37 +40,40 @@ class Client {
                 context.requestId = context.sid+':'+md5sum.digest('hex');
                 return context;
             },
+            getCache: function(opts){
+                let custom = ((opts.ctx||{}).session||{}).custom||{};
+                if(!custom.requestCache) custom.requestCache = {};
+                return custom.requestCache;
+            },
             // 获取Request类的实例化对象
             getRequest: function (opts) {
                 const context = this.getContext(opts);
-                const sid = context.sid;
+                let requestCache = this.getCache(opts);
                 const id = context.requestId;
+                if(!id){
+                    return Request;
+                }
                 // 通过requestId从缓存取
-                if (cache[id]) {
-                    return cache[id];
+                if (requestCache[id]) {
+                    return requestCache[id];
                 }
                 // 缓存中没有则创建新的请求对象
                 const request = Request.defaults({ jar: Request.jar() });
-                cache[id] = request;
+                requestCache[id] = request;
                 // 如果有会话要求则设置缓存
-                if(sid){
-                    if(!sessionCache[sid]) sessionCache[sid] = [];
-                    sessionCache[sid].push(id);
-                }
                 return request;
             },
             // 删除请求缓存
             delRequest: function (opts) {
                 const context = this.getContext(opts);
                 const id = context.requestId;
-                const sid = context.sid;
-                delete sessionCache[sid];
-                delete cache[id];
+                let requestCache = this.getCache(opts);
+                delete requestCache[sid];
             },
             // 清楚所有请求缓存
             clearRequest: function () {
-                sessionCache = {};
-                cache = {};
+                let requestCache = this.getCache(opts);
+                requestCache = {};
             }
         };
     };
@@ -107,19 +108,5 @@ let fetch = function (url, opts) {
 // 将Client类绑定到fetch对象中
 fetch.Client = Client;
 
-// 根据sids清除请求缓存
-fetch.clear = function(sids){
-    for(let i=0, leni=sids.length;i<leni;i++){
-        const sid = sids[i];
-        const sessions = sessionCache[sid]||[];
-        for(let j=0,lenj=sessions.length;j<lenj;j++){
-            delete cache[sessions[j]];
-        }
-        delete sessionCache[sid];
-    }
-};
 
 module.exports = fetch;
-
-// 监听session销毁事件，session销毁同时清空缓存
-session.callback.add('fetch', fetch.clear);
