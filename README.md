@@ -212,5 +212,48 @@ const lis = $('#ul2 li');
 ```
 
 
+### 编解码类
+
+require('chestnut-utils').codec
+
+此类封装了基于crypto模块的一些编解码功能
+
+**aesCipher(str, key)**
+
+aes编码。
+
+```javascript
+
+const codec = require('chestnut-utils').codec;
+
+const ret = codec.aesCipher('这是明文内容', 'a password');// 将明文信息进行aes编码
+
+```
+
+**aesDecipher(str, key)**
+
+aes解码。
+
+```javascript
+
+const codec = require('chestnut-utils').codec;
+
+const ret = codec.aesDecipher('这是aes加密内容', 'a password');// 将加密信息解码，得到明文
+
+```
+
+**md5(str)**
+
+md5编码。
+
+```javascript
+
+const codec = require('chestnut-utils').codec;
+
+const ret = codec.md5('这是明文内容');// 将明文信息进行md5编码
+
+```
+
+
 
 
