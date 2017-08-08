@@ -2,7 +2,7 @@ const Request = require('request');
 
 const URL = require('url');
 
-const crypto = require('crypto');
+const codec = require('./codec');
 
 const session = require('chestnut-session');
 
@@ -40,32 +40,53 @@ class Client {
                 const uri = opts.uri;
                 const url = URL.parse(uri);
                 const str = url.protocol + '://' + url.host;
-                var md5sum = crypto.createHash('md5');
-                md5sum.update(str);
-                context.requestId = context.sid + ':' + md5sum.digest('hex');
+                context.requestId = context.sid + ':' + codec.md5(str);
                 return context;
             },
-            /*getCache: function (opts) {
-                let session = (opts.ctx || {}).session || {};
-                if (!session.requestCache) session.requestCache = {};
-                return session.requestCache;
+            getCookieName: function (id) {
+                const cookieName = 'X-CHESTNUT-HTTP';
+                return cookieName + '-' + id.toUpperCase();
             },
-            getRequest: function(opts){
-                const context = this.getContext(opts);     
+            getCache: function (opts) {
+
+                const ctx = opts.ctx;
+                if (!ctx) return null;
+
+                const context = this.getContext(opts);
                 const id = context.requestId;
-                if(!id){
-                    return Request.defaults({ jar: Request.jar() });
+                if (!id) {
+                    return null;
                 }
-                let requestCache = this.getCache(opts);
-                let jar = requestCache[id];
-                if(!jar){
-                    jar = Request.jar();
-                    requestCache[id] = jar;
+
+                const cookieName = this.getCookieName(id);
+                let cookieHash = ctx.cookies.get(cookieName);
+                let cookie;
+
+                try {
+                    if (cookieHash) {
+                        cookie = JSON.parse(codec.aesDecipher(cookieHash, 'fetch'));
+                    }
+
+                    if (!cookie) {
+                        cookie = Request.jar();
+                        cookieHash = codec.aesCipher(JSON.stringify(cookie), 'fetch');
+                        ctx.cookies.set(cookieName, cookieHash);
+                    }
+                } catch (e) {
+                    return null;
                 }
-                return Request.defaults({ jar:  jar});
-            },*/
-            // 获取Request类的实例化对象
+                
+                return cookie;
+            },
             getRequest: function (opts) {
+                let jar = this.getCache(opts);
+                if (!jar) {
+                    jar = Request.jar();
+                }
+                return Request.defaults({ jar: jar });
+            },
+            // 获取Request类的实例化对象
+            /*getRequest: function (opts) {
                 const context = this.getContext(opts);
                 const sid = context.sid;
                 const id = context.requestId;
@@ -85,19 +106,16 @@ class Client {
                     sessionCache[sid].push(id);
                 }
                 return request;
-            },
-            // 删除请求缓存
+            },*/
+            // 删除请求缓存， 下次请求生效
             delRequest: function (opts) {
+                if(!opts.ctx){
+                    return;
+                }
                 const context = this.getContext(opts);
                 const id = context.requestId;
-                const sid = context.sid;
-                delete sessionCache[sid];
-                delete cache[id];
-            },
-            // 清楚所有请求缓存
-            clearRequest: function () {
-                sessionCache = {};
-                cache = {};
+                const cookieName = this.getCookieName(id);
+                opts.ctx.cookies.set(cookieName, null);
             }
         };
     };
@@ -134,14 +152,3 @@ fetch.Client = Client;
 
 
 module.exports = fetch;
-
-fetch.clear = function (sids) {
-    for (let i = 0, leni = sids.length; i < leni; i++) {
-        const sid = sids[i];
-        const sessions = sessionCache[sid] || [];
-        for (let j = 0, lenj = sessions.length; j < lenj; j++) {
-            delete cache[sessions[j]];
-        }
-        delete sessionCache[sid];
-    }
-};
