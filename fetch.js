@@ -43,46 +43,50 @@ class Client {
                 context.requestId = context.sid + ':' + codec.md5(str);
                 return context;
             },
+            // 根据请求id获取cookie名称
             getCookieName: function (id) {
-                const cookieName = 'X-CHESTNUT-HTTP';
+                const cookieName = 'X-CHESTNUT-HTTP';// 固定头信息前缀
                 return cookieName + '-' + id.toUpperCase();
             },
+            // 获取新的cookie
+            getJar : function(){
+                return Request.jar();
+            },
+            // 从cookie头信息中获取请求缓存配置
             getCache: function (opts) {
 
                 const ctx = opts.ctx;
-                if (!ctx) return null;
+                if (!ctx) return this.getJar();// 缓存是存在上下文的cookie中，所以如果没有上下文关系则直接返回新的cookie
 
-                const context = this.getContext(opts);
-                const id = context.requestId;
-                if (!id) {
-                    return null;
+                const context = this.getContext(opts);// 抽取上下文信息
+                const id = context.requestId;//. 获取请求id
+                if (!id) {// 缓存是根据请求id缓存和区分的，没有id则不会缓存直接返回新的cookie
+                    return this.getJar();
                 }
 
-                const cookieName = this.getCookieName(id);
-                let cookieHash = ctx.cookies.get(cookieName);
+                const cookieName = this.getCookieName(id);// 获取cookie名称
+                let cookieHash = ctx.cookies.get(cookieName);// 获取cookie信息
                 let cookie;
 
                 try {
-                    if (cookieHash) {
+                    if (cookieHash) {// 对cookie信息进行解码
                         cookie = JSON.parse(codec.aesDecipher(cookieHash, 'fetch'));
                     }
 
-                    if (!cookie) {
-                        cookie = Request.jar();
+                    if (!cookie) {// 如果cookie不存在则获取新的cookie，并设置到cookie中
+                        cookie = this.getJar();
                         cookieHash = codec.aesCipher(JSON.stringify(cookie), 'fetch');
                         ctx.cookies.set(cookieName, cookieHash);
                     }
                 } catch (e) {
-                    return null;
+                    return this.getJar();// 出现异常重新分配cookie
                 }
                 
                 return cookie;
             },
             getRequest: function (opts) {
+                // 从缓存中获取cookie
                 let jar = this.getCache(opts);
-                if (!jar) {
-                    jar = Request.jar();
-                }
                 return Request.defaults({ jar: jar });
             },
             // 获取Request类的实例化对象
@@ -115,6 +119,7 @@ class Client {
                 const context = this.getContext(opts);
                 const id = context.requestId;
                 const cookieName = this.getCookieName(id);
+                // 从cookie中清除缓存，所以下次请求才能生效
                 opts.ctx.cookies.set(cookieName, null);
             }
         };
