@@ -63,10 +63,14 @@ class Client {
                 if (!id) {// 缓存是根据请求id缓存和区分的，没有id则不会缓存直接返回新的cookie
                     return this.getJar();
                 }
-
                 const cookieName = this.getCookieName(id);// 获取cookie名称
+                let custom = ((ctx.session||{}).custom||{});// 获取存在session里custom信息
+                let cookie = custom[cookieName]; // 从会话里取
+                if(cookie){// 如果是同一会话直接返回
+                    return cookie;
+                }
+
                 let cookieHash = ctx.cookies.get(cookieName);// 获取cookie信息
-                let cookie;
 
                 try {
                     if (cookieHash) {// 对cookie信息进行解码
@@ -74,7 +78,7 @@ class Client {
                     }
 
                     if (!cookie) {// 如果cookie不存在则获取新的cookie，并设置到cookie中
-                        cookie = this.getJar();
+                        custom[cookieName] = cookie = this.getJar();                 
                         cookieHash = codec.aesCipher(JSON.stringify(cookie), 'fetch');
                         ctx.cookies.set(cookieName, cookieHash);
                     }
