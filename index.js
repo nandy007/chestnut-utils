@@ -1,7 +1,7 @@
 
 module.exports = {
-    db : require('./db'),
-    fetch : require('./fetch'),
-    jqlite : require('./jqlite'),
-    codec : require('./codec')
+    db : require('./lib/db'),
+    fetch : require('./lib/fetch'),
+    jqlite : require('./lib/jqlite'),
+    codec : require('./lib/codec')
 };

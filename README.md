@@ -44,7 +44,7 @@ db类提供query、find、insert、update、delete函数进行操作，这几个
 
 
 
-**query(sql, values, success, error)**
+**query(sql, values)**
 
 其中：
 
@@ -52,9 +52,7 @@ sql为可带?的sql语句，比如:select * from table where username=? and age=
 
 values为sql语句中?对应的数组参数，比如:['nandy007', '18']
 
-success为执行成功的回调，用于异步请求，一般用await则无需设置
-
-error为执行失败的回调，用于异步请求，一般用await则无需设置
+此方法返回一个promise对象
 
 示例：
 
@@ -176,7 +174,7 @@ exports.index = async (ctx) => {
       	ctx: ctx,
       	requestId: 'exmobi',
       	method: 'post',
-      	body: 'username=nandy007&password=11111',
+      	form: {username:'huangnan', password:'111111'},
       	headers: {
         	'Content-Type': 'application/x-www-form-urlencoded'
       	}
