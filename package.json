@@ -1,6 +1,6 @@
 {
   "name": "chestnut-utils",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "util for chestnut app",
   "main": "index.js",
   "scripts": {
