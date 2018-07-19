@@ -1,6 +1,6 @@
 {
   "name": "chestnut-utils",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "util for chestnut app",
   "main": "index.js",
   "scripts": {
@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
+    "mssql": "^4.1.0",
     "mysql": "^2.13.0",
     "pg": "^7.0.1",
     "request": "^2.81.0"
