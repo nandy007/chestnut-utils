@@ -3,6 +3,17 @@
 
 配合[chestnut-app](https://github.com/nandy007/chestnut-app)使用，也可单独在Koa2中使用
 
+特别注意：
+
+由于oracle使用环境复杂，依赖包未添加到工程中，如需使用oracle数据库请单独安装依赖包
+
+具体请参考[https://oracle.github.io/node-oracledb/INSTALL.html#quickstart](https://oracle.github.io/node-oracledb/INSTALL.html#quickstart)
+
+配置后请执行
+
+```bash
+npm install oracledb
+```
 
 ## 提供的方法
 
