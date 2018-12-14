@@ -11,6 +11,10 @@ describe('config', function () {
         
         it('get no session should success', function (done) {
             fetch('https://www.baidu.com/', {}).then(function (rsp) {
+                if(rsp.error){
+                    done(rsp.error);
+                    return;
+                }
                 const body = rsp.body;
                 const $ = jqlite(body);
                 console.log('日志信息：' + $('title').text());
@@ -45,6 +49,10 @@ describe('config', function () {
                 },
                 body : postData.join('\n')
             }).then(function (rsp) {
+                if(rsp.error){
+                    done(rsp.error);
+                    return;
+                }
                 const body = rsp.body;
                 const $ = jqlite(body);
                 console.log($('getWeatherbyCityNameResult').html());
@@ -90,6 +98,10 @@ describe('config', function () {
                 method: 'post',
                 form: { username: 'huangnan', password: '111111' } // 提交键值对参数
             }).then(function (rsp) {
+                if(rsp.error){
+                    done(rsp.error);
+                    return;
+                }
                 const body = rsp.body;
                 //console.log('日志信息：' + body);
                 done();
@@ -104,6 +116,10 @@ describe('config', function () {
                 ctx: ctx,
                 requestId: 'edn',
             }).then(function (rsp) {
+                if(rsp.error){
+                    done(rsp.error);
+                    return;
+                }
                 const $ = jqlite(rsp.body);
                 const username = $('#consumer span').first().text();
                 if(username==='huangnan'){
@@ -129,6 +145,10 @@ describe('config', function () {
                     file: fs.createReadStream(__dirname + '/mocha.opts'),
                 }
             }).then(function (rsp) {
+                if(rsp.error){
+                    done(rsp.error);
+                    return;
+                }
                 const body = rsp.body;
                 if (body.indexOf('Content-Disposition: form-data; name="file";') > -1) {
                     done();
