@@ -178,6 +178,10 @@ opts为请求参数，可参考https://github.com/request/request中的options�
 
 *requestId* 默认为请求的url的host部分，可以自己设置（某些url使用会话共享，不同host的会话一致，可以给它们设置相同的requestId解决）
 
+*cookies* 为请求设置自定义cookie，形式可以是数组和对象。
+    数组形如：cookies: [cookie1, cookie2]  // cookie值为字符串形如cookieName=cookieValue
+    对象形如：cookies: {cookieName1: cookieValue1, cookieName2: cookieValue2}
+
 ```javascript
 exports.index = async (ctx) => {
 	const fetch = require('chestnut-utils').fetch;
