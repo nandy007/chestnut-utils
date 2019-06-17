@@ -4,5 +4,6 @@ module.exports = {
     fetch : require('./lib/fetch'),
     jqlite : require('./lib/jqlite'),
     codec : require('./lib/codec'),
-    jsonfile : require('./lib/jsonfile')
+    jsonfile : require('./lib/jsonfile'),
+    oauth : require('./lib/oauth')
 };
