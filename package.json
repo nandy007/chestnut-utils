@@ -22,7 +22,9 @@
     "should-promised": "^0.3.0"
   },
   "dependencies": {
+    "amqplib": "^0.5.5",
     "cheerio": "^1.0.0-rc.2",
+    "javascript-obfuscator": "^0.27.3",
     "mssql": "^4.1.0",
     "mysql": "^2.13.0",
     "pg": "^7.0.1",
