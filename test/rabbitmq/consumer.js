@@ -18,7 +18,7 @@ async function consumer() {
     await channel.bindQueue(queueName, exchangeName, routingKey);
     
     // 5. 限流参数设置
-    // await channel.prefetch(2, false);
+    await channel.prefetch(1, false);
 
     // 6. 限流，noAck参数必须设置为false
     await channel.consume(queueName, msg => {
